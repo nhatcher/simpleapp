@@ -8,16 +8,16 @@
   <script>
     window.addEventListener('load', () => {
       const nameSpan = document.getElementById('name');
+      const logoutButton = document.getElementById('logout')
       const firstCookie = decodeURIComponent(document.cookie).split(';')[0];
       const name = firstCookie.split('=')[1];
       nameSpan.innerText = name;
       logoutButton.addEventListener('click', () => {
-        fetch('/rpc/logout', {
+        fetch('/rpc/logout/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
+          }
         }).then((response) => {
           response.text().then(s => {
             if (s === 'true') {
@@ -31,6 +31,6 @@
 </head>
 <body>
   <div>Congrats <span id="name"></span>, you are logged in!</div>
-  <button>Log out</button>
+  <button id="logout">Log out</button>
 </body>
 </html>

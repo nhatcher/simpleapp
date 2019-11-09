@@ -162,7 +162,10 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "%t", isValid)
 	} else if path == "logout/" {
-		// TODO: Remove Session
+		// Remove Session
+		addCookie(w, "session", "", true)
+		addCookie(w, "username", "", false)
+		fmt.Fprintf(w, "%t", true)
 	} else {
 		panic("Invalid RPC")
 	}
@@ -217,7 +220,7 @@ func testDB() {
 			"John",
 			"Smith",
 			"john.smith@example.com",
-			"nsmith",
+			"jsmith",
 			"abracadabra"
 		);`)
 		checkErr(err)
