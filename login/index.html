@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Simple Example for Carlitos</title>
+  <script>
+    window.addEventListener('load', () => {
+      const loginButton = document.getElementById('login');
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      loginButton.addEventListener('click', () => {
+        const data = {
+          username: usernameInput.value,
+          password: passwordInput.value
+        };
+        fetch('/rpc/login/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        }).then((response) => {
+          response.text().then(s => {
+            if (s === 'true') {
+              location.reload();
+            }
+          })
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div>
+      <label for="username">Username: </label>
+      <input type="text" id="username"></div>
+  <div>
+      <label for="password">Password: </label>
+      <input type="text" id="password">
+  </div>
+  <button id="login">Login</button>
+</body>
+</html>

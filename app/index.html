@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Simple Example for Carlitos</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js"></script>
+  <script>
+    window.addEventListener('load', () => {
+      const nameSpan = document.getElementById('name');
+      const firstCookie = decodeURIComponent(document.cookie).split(';')[0];
+      const name = firstCookie.split('=')[1];
+      nameSpan.innerText = name;
+      logoutButton.addEventListener('click', () => {
+        fetch('/rpc/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        }).then((response) => {
+          response.text().then(s => {
+            if (s === 'true') {
+              location.reload();
+            }
+          })
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div>Congrats <span id="name"></span>, you are logged in!</div>
+  <button>Log out</button>
+</body>
+</html>
