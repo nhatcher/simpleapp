@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8"/>
-  <title>Simple Example for Carlitos</title>
+  <title>Secret webpage</title>
   <link rel="stylesheet" href="style.css">
   <script src="main.js"></script>
   <script>
@@ -19,11 +19,15 @@
             'Content-Type': 'application/json'
           }
         }).then((response) => {
-          response.text().then(s => {
-            if (s === 'true') {
+          response.json().then(resp => {
+            if (resp.success) {
               location.reload();
+            } else {
+              console.error('Could not log out');
             }
-          })
+          }, error => {
+            console.log(error);
+          });
         });
       });
     });
@@ -32,5 +36,6 @@
 <body>
   <div>Congrats <span id="name"></span>, you are logged in!</div>
   <button id="logout">Log out</button>
+  <img src="secret.png" alt="Secret image">
 </body>
 </html>

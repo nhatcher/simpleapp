@@ -2,7 +2,9 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8"/>
-  <title>Simple Example for Carlitos</title>
+  <title>Login page</title>
+  <link rel="stylesheet" href="login/style.css">
+  <script src="login/main.js"></script>
   <script>
     window.addEventListener('load', () => {
       const loginButton = document.getElementById('login');
@@ -20,11 +22,15 @@
           },
           body: JSON.stringify(data)
         }).then((response) => {
-          response.text().then(s => {
-            if (s === 'true') {
+          response.json().then(resp => {
+            if (resp.success) {
               location.reload();
+            } else {
+              console.log('Invalid username/password');
             }
-          })
+          }, error => {
+            console.log(error);
+          });
         });
       });
     });
@@ -39,5 +45,6 @@
       <input type="text" id="password">
   </div>
   <button id="login">Login</button>
+  <img src="login/login.png" alt="Login image">
 </body>
 </html>
