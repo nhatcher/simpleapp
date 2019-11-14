@@ -82,6 +82,30 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getSessionHash(r *http.Request) (string, error) {
+	// First gets the session Cookie
+	sessionCookie, err := r.Cookie("session")
+	if err != nil {
+		log.Print(err)
+		return "", err
+	}
+	return url.QueryUnescape(sessionCookie.Value)
+}
+
+func isLoggedIn(r *http.Request) bool {
+	sessionHash, err := getSessionHash(r)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	_, err = getUserIDFromSessionHash(sessionHash)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	return true
+}
+
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
 	log.Printf("Seriving file: %s", path)

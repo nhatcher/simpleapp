@@ -2,25 +2,24 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func addSession(password string, userID int) {
+func addSession(sessionHash string, userID int) {
 	db, err := sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
 	defer db.Close()
 	tx, err := db.Begin()
 	checkErr(err)
-	stmt, err := tx.Prepare("INSERT INTO SESSIONS (user_id, password) VALUES (?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO SESSIONS (user_id, session_hash) VALUES (?, ?)")
 	checkErr(err)
 	defer stmt.Close()
-	_, err = stmt.Exec(userID, password)
+	_, err = stmt.Exec(userID, sessionHash)
 	checkErr(err)
 	tx.Commit()
 }
@@ -60,48 +59,32 @@ func isValidPassword(username string, password string) (int, bool) {
 	return 0, false
 }
 
-func isLoggedIn(r *http.Request) bool {
-	// First gets the session Cookie
-	sessionCookie, err := r.Cookie("session")
-	if err != nil {
-		log.Print(err)
-		return false
-	}
-	sessionID, err := url.QueryUnescape(sessionCookie.Value)
-	if err != nil {
-		log.Print(err)
-		return false
-	}
+func getUserIDFromSessionHash(sessionHash string) (int, error) {
 	// Then it checks if the session is in the SESSIONS table
 	db, err := sql.Open("sqlite3", "./database.sqlite")
 	if err != nil {
-		log.Println(err)
-		return false
+		return -1, err
 	}
 	defer db.Close()
-	stmt, err := db.Prepare("SELECT user_id FROM SESSIONS WHERE password=?")
+	stmt, err := db.Prepare("SELECT user_id FROM SESSIONS WHERE session_hash=?")
 	if err != nil {
-		log.Print(err)
-		return false
+		return -1, err
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query(sessionID)
+	rows, err := stmt.Query(sessionHash)
 	if err != nil {
-		log.Println(err)
-		return false
+		return -1, err
 	}
 	defer rows.Close()
-	var usrID int
+	var userID int
 	if rows.Next() {
-		err = rows.Scan(&usrID)
+		err = rows.Scan(&userID)
 		if err != nil {
-			log.Println(err)
-			return false
+			return -1, err
 		}
-		return true
+		return userID, nil
 	}
-	log.Println("Session not found")
-	return false
+	return -1, fmt.Errorf("Session not found")
 }
 
 func createDatabase() {
@@ -123,7 +106,7 @@ func createDatabase() {
 	CREATE TABLE SESSIONS (
 		session_id INTEGER PRIMARY KEY,
 		user_id INTEGER,
-		password TEXT NOT NULL,
+		session_hash TEXT NOT NULL,
 		create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (user_id) REFERENCES USERS (user_id) 
 	);`)
@@ -174,5 +157,5 @@ func listUsers() {
 func testDB() {
 	os.Remove("database.sqlite")
 	createDatabase()
-	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "abracadabra")
+	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123")
 }

@@ -24,7 +24,7 @@
         }).then((response) => {
           response.json().then(resp => {
             if (resp.success) {
-              location.reload();
+              location.reload(true);
             } else {
               console.log('Invalid username/password');
             }
@@ -42,7 +42,7 @@
       <input type="text" id="username"></div>
   <div>
       <label for="password">Password: </label>
-      <input type="text" id="password">
+      <input type="password" id="password">
   </div>
   <button id="login">Login</button>
   <img src="login/login.png" alt="Login image">
