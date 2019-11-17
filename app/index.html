@@ -6,36 +6,12 @@
   <link rel="stylesheet" href="style.css">
   <script src="main.js"></script>
   <script>
-    window.addEventListener('load', () => {
-      const nameSpan = document.getElementById('name');
-      const logoutButton = document.getElementById('logout')
-      const firstCookie = decodeURIComponent(document.cookie).split(';')[0];
-      const name = firstCookie.split('=')[1];
-      nameSpan.innerText = name;
-      logoutButton.addEventListener('click', () => {
-        fetch('/rpc/logout/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }).then((response) => {
-          response.json().then(resp => {
-            if (resp.success) {
-              location.reload();
-            } else {
-              console.error('Could not log out');
-            }
-          }, error => {
-            console.log(error);
-          });
-        });
-      });
-    });
+    window.addEventListener('load', main);
   </script>
 </head>
 <body>
   <div>Congrats <span id="name"></span>, you are logged in!</div>
   <button id="logout">Log out</button>
-  <img src="secret.png" alt="Secret image">
+  <img id="secret-image" src="secret.png" alt="Secret image">
 </body>
 </html>

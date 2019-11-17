@@ -24,6 +24,30 @@ func checkErr(err error) {
 	}
 }
 
+func getSessionHash(r *http.Request) (string, error) {
+	// First gets the session Cookie
+	sessionCookie, err := r.Cookie("session")
+	if err != nil {
+		log.Print(err)
+		return "", err
+	}
+	return url.QueryUnescape(sessionCookie.Value)
+}
+
+func isLoggedIn(r *http.Request) bool {
+	sessionHash, err := getSessionHash(r)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	_, err = getUserIDFromSessionHash(sessionHash)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	return true
+}
+
 func generateSessionPassword() string {
 	b := make([]byte, 32)
 	_, err := io.ReadFull(rand.Reader, b)
@@ -80,30 +104,6 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		panic("Invalid RPC")
 	}
-}
-
-func getSessionHash(r *http.Request) (string, error) {
-	// First gets the session Cookie
-	sessionCookie, err := r.Cookie("session")
-	if err != nil {
-		log.Print(err)
-		return "", err
-	}
-	return url.QueryUnescape(sessionCookie.Value)
-}
-
-func isLoggedIn(r *http.Request) bool {
-	sessionHash, err := getSessionHash(r)
-	if err != nil {
-		log.Print(err)
-		return false
-	}
-	_, err = getUserIDFromSessionHash(sessionHash)
-	if err != nil {
-		log.Print(err)
-		return false
-	}
-	return true
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
