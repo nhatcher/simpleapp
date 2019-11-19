@@ -108,7 +108,7 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
-	log.Printf("Seriving file: %s", path)
+	log.Printf("Serving file: %s", path)
 	if !isLoggedIn(r) {
 		http.ServeFile(w, r, "login/index.html")
 	} else {
