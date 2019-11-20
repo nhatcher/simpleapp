@@ -86,7 +86,7 @@ func createDatabase() {
 		email TEXT NOT NULL UNIQUE,
 		username TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL,
-		user_type TEXT NOT NULL
+		is_root INTEGER NOT NULL
 	);`)
 	checkErr(err)
 	_, err = db.Exec(`
@@ -95,14 +95,12 @@ func createDatabase() {
 		user_id INTEGER,
 		session_hash TEXT NOT NULL,
 		create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-		user_type TEXT,
-		FOREIGN KEY (user_id) REFERENCES USERS (user_id),
-		FOREIGN KEY (user_type) REFERENCES USERS (type)
+		FOREIGN KEY (user_id) REFERENCES USERS (user_id)
 	);`)
 	checkErr(err)
 }
 
-func addUser(firstName string, lastName string, email string, username string, password string, userType string) {
+func addUser(firstName string, lastName string, email string, username string, password string, userType int) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
@@ -128,13 +126,13 @@ func listUsers() {
 	checkErr(err)
 	defer rows.Close()
 	log.Println("List of current users")
-	var uid int
+	var uid, userType int
 	var name string
-	var lastName, email, username, password, userType string
+	var lastName, email, username, password string
 	for rows.Next() {
 		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &userType)
 		checkErr(err)
-		log.Printf("%s %s, %s, status: %s\n", name, lastName, email, userType)
+		log.Printf("%s %s, %s\n", name, lastName, email)
 	}
 }
 
@@ -144,7 +142,7 @@ func initDatabase() {
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
 	createDatabase()
-	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", "normal")
-	addUser("Nicoliere", "Hacedor de Sombreros", "n.h@example.com", "hnicoliere", "123", "root")
+	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", 0)
+	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", 1)
 	listUsers()
 }
