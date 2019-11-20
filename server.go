@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -67,15 +66,6 @@ func addCookie(w http.ResponseWriter, name string, value string, httpOnly bool) 
 	http.SetCookie(w, &cookie)
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path[1:]
-	log.Printf("Serving loging: %s", path)
-	if strings.HasSuffix(path, ".png") {
-		w.Header().Set("Content-Type", "image/png")
-	}
-	http.ServeFile(w, r, path)
-}
-
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("RPC: %s", r.URL)
 	if r.Method != "POST" {
@@ -110,7 +100,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
 	log.Printf("Serving file: %s", path)
 	if !isLoggedIn(r) {
-		http.ServeFile(w, r, "login/index.html")
+		appPath := fmt.Sprintf("login/%s", path)
+		http.ServeFile(w, r, appPath)
 	} else {
 		appPath := fmt.Sprintf("app/%s", path)
 		http.ServeFile(w, r, appPath)
@@ -120,7 +111,6 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	testDB()
 	http.HandleFunc("/", mainHandler)
-	http.HandleFunc("/login/", loginHandler)
 	http.HandleFunc("/rpc/", rpcHandler)
 	log.Fatal(http.ListenAndServe(":1312", nil))
 }
