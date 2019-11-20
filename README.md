@@ -1,4 +1,7 @@
 Simple App
 ==========
 
-Yet to be written
+Build Instructions
+------------------
+
+$ go build
