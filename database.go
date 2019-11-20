@@ -5,20 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var mu sync.Mutex
+var db *sql.DB
 
 func addSession(sessionHash string, userID int) {
-	mu.Lock()
-	defer mu.Unlock()
-	db, err := sql.Open("sqlite3", "./database.sqlite")
-	checkErr(err)
-	defer db.Close()
 	tx, err := db.Begin()
 	checkErr(err)
 	stmt, err := tx.Prepare("INSERT INTO SESSIONS (user_id, session_hash) VALUES (?, ?)")
@@ -30,13 +24,6 @@ func addSession(sessionHash string, userID int) {
 }
 
 func isValidPassword(username string, password string) (int, bool) {
-	mu.Lock()
-	defer mu.Unlock()
-	db, err := sql.Open("sqlite3", "./database.sqlite")
-	if err != nil {
-		return 0, false
-	}
-	defer db.Close()
 	stmt, err := db.Prepare("SELECT user_id, password FROM USERS where username=?")
 	if err != nil {
 		log.Print(err)
@@ -68,13 +55,6 @@ func isValidPassword(username string, password string) (int, bool) {
 
 func getUserIDFromSessionHash(sessionHash string) (int, error) {
 	// Then it checks if the session is in the SESSIONS table
-	mu.Lock()
-	defer mu.Unlock()
-	db, err := sql.Open("sqlite3", "./database.sqlite")
-	if err != nil {
-		return -1, err
-	}
-	defer db.Close()
 	stmt, err := db.Prepare("SELECT user_id FROM SESSIONS WHERE session_hash=?")
 	if err != nil {
 		return -1, err
@@ -97,13 +77,8 @@ func getUserIDFromSessionHash(sessionHash string) (int, error) {
 }
 
 func createDatabase() {
-	mu.Lock()
-	defer mu.Unlock()
 	log.Print("Creating new Database")
-	db, err := sql.Open("sqlite3", "./database.sqlite")
-	checkErr(err)
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := db.Exec(`
 	CREATE TABLE USERS (
 		user_id INTEGER PRIMARY KEY,
 		first_name TEXT NOT NULL,
@@ -125,11 +100,6 @@ func createDatabase() {
 }
 
 func addUser(firstName string, lastName string, email string, username string, password string) {
-	mu.Lock()
-	defer mu.Unlock()
-	db, err := sql.Open("sqlite3", "./database.sqlite")
-	checkErr(err)
-	defer db.Close()
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
@@ -149,11 +119,6 @@ func addUser(firstName string, lastName string, email string, username string, p
 }
 
 func listUsers() {
-	mu.Lock()
-	defer mu.Unlock()
-	db, err := sql.Open("sqlite3", "./database.sqlite")
-	checkErr(err)
-	defer db.Close()
 	// SELECT type, name FROM sqlite_master where type="table"
 	rows, err := db.Query("SELECT * FROM USERS")
 	checkErr(err)
@@ -169,8 +134,12 @@ func listUsers() {
 	}
 }
 
-func testDB() {
+func initDatabase() {
 	os.Remove("database.sqlite")
+	var err error
+	db, err = sql.Open("sqlite3", "./database.sqlite")
+	checkErr(err)
 	createDatabase()
 	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123")
+	listUsers()
 }

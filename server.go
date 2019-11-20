@@ -109,7 +109,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	testDB()
+	initDatabase()
 	http.HandleFunc("/", mainHandler)
 	http.HandleFunc("/rpc/", rpcHandler)
 	log.Fatal(http.ListenAndServe(":1312", nil))
