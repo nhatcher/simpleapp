@@ -85,7 +85,8 @@ func createDatabase() {
 		last_name TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE,
 		username TEXT NOT NULL UNIQUE,
-		password TEXT NOT NULL
+		password TEXT NOT NULL,
+		user_type TEXT NOT NULL
 	);`)
 	checkErr(err)
 	_, err = db.Exec(`
@@ -94,12 +95,14 @@ func createDatabase() {
 		user_id INTEGER,
 		session_hash TEXT NOT NULL,
 		create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (user_id) REFERENCES USERS (user_id) 
+		user_type TEXT,
+		FOREIGN KEY (user_id) REFERENCES USERS (user_id),
+		FOREIGN KEY (user_type) REFERENCES USERS (type)
 	);`)
 	checkErr(err)
 }
 
-func addUser(firstName string, lastName string, email string, username string, password string) {
+func addUser(firstName string, lastName string, email string, username string, password string, userType string) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
@@ -107,13 +110,14 @@ func addUser(firstName string, lastName string, email string, username string, p
 		last_name,
 		email,
 		username,
-		password
-	) VALUES (?, ?, ?, ?, ?);`)
+		password,
+		user_type
+	) VALUES (?, ?, ?, ?, ?, ?);`)
 	checkErr(err)
 	defer stmt.Close()
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	checkErr(err)
-	_, err = stmt.Exec(firstName, lastName, email, username, string(hash))
+	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), userType)
 	checkErr(err)
 	tx.Commit()
 }
@@ -126,11 +130,11 @@ func listUsers() {
 	log.Println("List of current users")
 	var uid int
 	var name string
-	var lastName, email, username, password string
+	var lastName, email, username, password, userType string
 	for rows.Next() {
-		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password)
+		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &userType)
 		checkErr(err)
-		log.Printf("%s %s, %s\n", name, lastName, email)
+		log.Printf("%s %s, %s, status: %s\n", name, lastName, email, userType)
 	}
 }
 
@@ -140,6 +144,7 @@ func initDatabase() {
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
 	createDatabase()
-	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123")
+	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", "normal")
+	addUser("Nicoliere", "Hacedor de Sombreros", "n.h@example.com", "hnicoliere", "123", "root")
 	listUsers()
 }
