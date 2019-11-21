@@ -126,9 +126,9 @@ func listUsers() {
 	checkErr(err)
 	defer rows.Close()
 	log.Println("List of current users")
-	var uid, isRoot int
-	var name string
-	var lastName, email, username, password string
+	var uid int
+	var isRoot bool
+	var name, lastName, email, username, password string
 	for rows.Next() {
 		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &isRoot)
 		checkErr(err)
@@ -142,7 +142,7 @@ func initDatabase() {
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
 	createDatabase()
-	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", 0)
-	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", 1)
+	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", false)
+	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", true)
 	listUsers()
 }
