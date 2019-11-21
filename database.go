@@ -100,7 +100,7 @@ func createDatabase() {
 	checkErr(err)
 }
 
-func addUser(firstName string, lastName string, email string, username string, password string, userType int) {
+func addUser(firstName string, lastName string, email string, username string, password string, isRoot int) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
@@ -109,13 +109,13 @@ func addUser(firstName string, lastName string, email string, username string, p
 		email,
 		username,
 		password,
-		user_type
+		is_root
 	) VALUES (?, ?, ?, ?, ?, ?);`)
 	checkErr(err)
 	defer stmt.Close()
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	checkErr(err)
-	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), userType)
+	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), isRoot)
 	checkErr(err)
 	tx.Commit()
 }
@@ -126,11 +126,11 @@ func listUsers() {
 	checkErr(err)
 	defer rows.Close()
 	log.Println("List of current users")
-	var uid, userType int
+	var uid, isRoot int
 	var name string
 	var lastName, email, username, password string
 	for rows.Next() {
-		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &userType)
+		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &isRoot)
 		checkErr(err)
 		log.Printf("%s %s, %s\n", name, lastName, email)
 	}
