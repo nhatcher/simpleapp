@@ -86,7 +86,7 @@ func createDatabase() {
 		email TEXT NOT NULL UNIQUE,
 		username TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL,
-		is_root INTEGER NOT NULL
+		is_root BOOLEAN NOT NULL
 	);`)
 	checkErr(err)
 	_, err = db.Exec(`
@@ -100,7 +100,7 @@ func createDatabase() {
 	checkErr(err)
 }
 
-func addUser(firstName string, lastName string, email string, username string, password string, isRoot int) {
+func addUser(firstName string, lastName string, email string, username string, password string, isRoot bool) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
