@@ -111,8 +111,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
 	log.Printf("Serving Admin file: %s", path)
-	appPath := fmt.Sprintf("%s", path)
-	http.ServeFile(w, r, appPath)
+	http.ServeFile(w, r, path)
 }
 
 func main() {
