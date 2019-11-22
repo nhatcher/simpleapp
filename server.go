@@ -108,9 +108,18 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func adminHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path[1:]
+	log.Printf("Serving Admin file: %s", path)
+	appPath := fmt.Sprintf("%s", path)
+	http.ServeFile(w, r, appPath)
+	log.Printf("Serving Admin file: %s", appPath)
+}
+
 func main() {
 	initDatabase()
 	http.HandleFunc("/", mainHandler)
 	http.HandleFunc("/rpc/", rpcHandler)
+	http.HandleFunc("/admin/", adminHandler)
 	log.Fatal(http.ListenAndServe(":1312", nil))
 }
