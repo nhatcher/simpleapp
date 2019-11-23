@@ -33,18 +33,19 @@ func getSessionHash(r *http.Request) (string, error) {
 	return url.QueryUnescape(sessionCookie.Value)
 }
 
-func isLoggedIn(r *http.Request) bool {
+func isLoggedIn(r *http.Request) (bool, int) {
 	sessionHash, err := getSessionHash(r)
 	if err != nil {
 		log.Print(err)
-		return false
+		return false, -1
 	}
-	_, err = getUserIDFromSessionHash(sessionHash)
+	var userID int
+	userID, err = getUserIDFromSessionHash(sessionHash)
 	if err != nil {
 		log.Print(err)
-		return false
+		return false, -1
 	}
-	return true
+	return true, userID
 }
 
 func generateSessionPassword() string {
@@ -99,12 +100,22 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
 	log.Printf("Serving file: %s", path)
-	if !isLoggedIn(r) {
+	userIsLoggedIn, userID := isLoggedIn(r)
+	if !userIsLoggedIn {
 		appPath := fmt.Sprintf("login/%s", path)
 		http.ServeFile(w, r, appPath)
 	} else {
-		appPath := fmt.Sprintf("app/%s", path)
-		http.ServeFile(w, r, appPath)
+		var err error
+		var isRoot, _ = getIsRoot(userID)
+		log.Printf("isRoot: %t", isRoot)
+		checkErr(err)
+		if  isRoot {
+			appPath := fmt.Sprintf("admin/%s", path)
+			http.ServeFile(w, r, appPath)
+		} else{
+			appPath := fmt.Sprintf("app/%s", path)
+			http.ServeFile(w, r, appPath)
+		}
 	}
 }
 
@@ -118,6 +129,5 @@ func main() {
 	initDatabase()
 	http.HandleFunc("/", mainHandler)
 	http.HandleFunc("/rpc/", rpcHandler)
-	http.HandleFunc("/admin/", adminHandler)
 	log.Fatal(http.ListenAndServe(":1312", nil))
 }

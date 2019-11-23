@@ -76,6 +76,28 @@ func getUserIDFromSessionHash(sessionHash string) (int, error) {
 	return -1, fmt.Errorf("Session not found")
 }
 
+func getIsRoot(user_id int) (bool, error) {
+	stmt, err := db.Prepare("SELECT is_root FROM USERS WHERE user_id=?")
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(user_id)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+	var isRoot bool
+	if rows.Next() {
+		err = rows.Scan(&isRoot)
+		if err != nil {
+			return false, err
+		}
+		return isRoot, nil
+	}
+	return false, fmt.Errorf("Session not found")
+}
+
 func createDatabase() {
 	log.Print("Creating new Database")
 	_, err := db.Exec(`
