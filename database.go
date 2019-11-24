@@ -76,7 +76,7 @@ func getUserIDFromSessionHash(sessionHash string) (int, int, error) {
 	return -1, -1, fmt.Errorf("Session not found")
 }
 
-func addUser(firstName string, lastName string, email string, username string, password string, isRoot bool) {
+func addUser(firstName string, lastName string, email string, username string, password string, usertypeID int) {
 	tx, err := db.Begin()
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
@@ -91,7 +91,7 @@ func addUser(firstName string, lastName string, email string, username string, p
 	defer stmt.Close()
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	checkErr(err)
-	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), isRoot)
+	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), usertypeID)
 	checkErr(err)
 	tx.Commit()
 }
@@ -116,7 +116,7 @@ func initDatabase() {
 	var err error
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
-	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", false)
-	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", true)
+	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", 1)
+	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", 2)
 	listUsers()
 }
