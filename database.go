@@ -103,10 +103,10 @@ func listUsers() {
 	defer rows.Close()
 	log.Println("List of current users")
 	var uid int
-	var isRoot bool
+	var usertypeID int
 	var name, lastName, email, username, password string
 	for rows.Next() {
-		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &isRoot)
+		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &usertypeID)
 		checkErr(err)
 		log.Printf("%s %s, %s\n", name, lastName, email)
 	}

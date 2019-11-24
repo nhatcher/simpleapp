@@ -6,4 +6,4 @@ database.sqlite:
 
 clean:
 	rm database.sqlite
-	rm webapp
+	rm simpleapp

@@ -128,8 +128,13 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
-	log.Printf("Serving Admin file: %s", path)
-	http.ServeFile(w, r, path)
+	if isAdminLoggedIn(r) {
+		log.Printf("Serving Admin file: %s", path)
+		http.ServeFile(w, r, path)
+	} else {
+		appPath := fmt.Sprintf("login/%s", path)
+		http.ServeFile(w, r, appPath)
+	}
 }
 
 func main() {
