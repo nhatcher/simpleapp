@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -53,51 +52,28 @@ func isValidPassword(username string, password string) (int, bool) {
 	return 0, false
 }
 
-func getUserIDFromSessionHash(sessionHash string) (int, error) {
+func getUserIDFromSessionHash(sessionHash string) (int, int, error) {
 	// Then it checks if the session is in the SESSIONS table
-	stmt, err := db.Prepare("SELECT user_id FROM SESSIONS WHERE session_hash=?")
+	stmt, err := db.Prepare("SELECT SESSIONS.user_id AS id, usertype_id FROM SESSIONS, USERS WHERE session_hash=? AND USERS.user_id=id;")
 	if err != nil {
-		return -1, err
+		return -1, -1, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(sessionHash)
 	if err != nil {
-		return -1, err
+		return -1, -1, err
 	}
 	defer rows.Close()
 	var userID int
+	var usertypeID int
 	if rows.Next() {
-		err = rows.Scan(&userID)
+		err = rows.Scan(&userID, &usertypeID)
 		if err != nil {
-			return -1, err
+			return -1, -1, err
 		}
-		return userID, nil
+		return usertypeID, userID, nil
 	}
-	return -1, fmt.Errorf("Session not found")
-}
-
-func createDatabase() {
-	log.Print("Creating new Database")
-	_, err := db.Exec(`
-	CREATE TABLE USERS (
-		user_id INTEGER PRIMARY KEY,
-		first_name TEXT NOT NULL,
-		last_name TEXT NOT NULL,
-		email TEXT NOT NULL UNIQUE,
-		username TEXT NOT NULL UNIQUE,
-		password TEXT NOT NULL,
-		is_root BOOLEAN NOT NULL
-	);`)
-	checkErr(err)
-	_, err = db.Exec(`
-	CREATE TABLE SESSIONS (
-		session_id INTEGER PRIMARY KEY,
-		user_id INTEGER,
-		session_hash TEXT NOT NULL,
-		create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (user_id) REFERENCES USERS (user_id)
-	);`)
-	checkErr(err)
+	return -1, -1, fmt.Errorf("Session not found")
 }
 
 func addUser(firstName string, lastName string, email string, username string, password string, isRoot bool) {
@@ -109,7 +85,7 @@ func addUser(firstName string, lastName string, email string, username string, p
 		email,
 		username,
 		password,
-		is_root
+		usertype_id
 	) VALUES (?, ?, ?, ?, ?, ?);`)
 	checkErr(err)
 	defer stmt.Close()
@@ -137,11 +113,9 @@ func listUsers() {
 }
 
 func initDatabase() {
-	os.Remove("database.sqlite")
 	var err error
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
-	createDatabase()
 	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", false)
 	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", true)
 	listUsers()
