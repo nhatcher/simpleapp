@@ -39,12 +39,30 @@ func isLoggedIn(r *http.Request) bool {
 		log.Print(err)
 		return false
 	}
-	_, err = getUserIDFromSessionHash(sessionHash)
+	_, _, err = getUserIDFromSessionHash(sessionHash)
 	if err != nil {
 		log.Print(err)
 		return false
 	}
 	return true
+}
+
+func isAdminLoggedIn(r *http.Request) bool {
+	sessionHash, err := getSessionHash(r)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	userID, usertypeID, err := getUserIDFromSessionHash(sessionHash)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	if usertypeID == 2 {
+		return true
+	}
+	log.Printf("Not root user: %d", userID)
+	return false
 }
 
 func generateSessionPassword() string {
@@ -110,8 +128,13 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:]
-	log.Printf("Serving Admin file: %s", path)
-	http.ServeFile(w, r, path)
+	if isAdminLoggedIn(r) {
+		log.Printf("Serving Admin file: %s", path)
+		http.ServeFile(w, r, path)
+	} else {
+		appPath := fmt.Sprintf("login/%s", path)
+		http.ServeFile(w, r, appPath)
+	}
 }
 
 func main() {
