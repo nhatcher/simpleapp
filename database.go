@@ -71,7 +71,7 @@ func getUserIDFromSessionHash(sessionHash string) (int, int, error) {
 		if err != nil {
 			return -1, -1, err
 		}
-		return usertypeID, userID, nil
+		return userID, usertypeID, nil
 	}
 	return -1, -1, fmt.Errorf("Session not found")
 }
