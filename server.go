@@ -12,9 +12,17 @@ import (
 	"time"
 )
 
-type user struct {
+type userData struct {
 	Username string
 	Password string
+}
+
+type user struct {
+	Name string `json:"name"`
+	LastName string `json:"lastName"`
+	Username string `json:"username"`
+	Email string `json:"email"`
+	UserID int `json:"userID"`
 }
 
 func checkErr(err error) {
@@ -84,33 +92,67 @@ func addCookie(w http.ResponseWriter, name string, value string, httpOnly bool) 
 	http.SetCookie(w, &cookie)
 }
 
+func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Admin RPC: %s", r.URL)
+	if !isAdminLoggedIn(r) {
+		fmt.Fprint(w, "{\"success\": false}")
+		return
+	}
+	path := r.URL.Path[11:]
+	w.Header().Add("Content-Type", "application/json")
+	if path == "list-users" {
+		userList := listUsers()
+		users, err := json.Marshal(userList)
+		checkErr(err)
+		w.Write(users)
+	} else if path == "delete-users" {
+		if r.Method != "POST" {
+			// panic("Invalid method")
+			fmt.Fprint(w, "{\"success\": false}")
+			return
+		  }
+		  decoder := json.NewDecoder(r.Body)
+		  var t user
+		  err := decoder.Decode(&t)
+		  checkErr(err)
+		  deleteUser(t.UserID)
+		  log.Printf("%v", t.UserID)
+	} else {
+		fmt.Fprint(w, "{\"success\": false}")
+		// panic("Invalid RPC")
+	}
+}
+
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("RPC: %s", r.URL)
 	if r.Method != "POST" {
-		panic("Invalid method")
+	  // panic("Invalid method")
+	  fmt.Fprint(w, "{\"success\": false}")
+	  return
 	}
 	path := r.URL.Path[5:]
 	w.Header().Add("Content-Type", "application/json")
 	if path == "login/" {
-		decoder := json.NewDecoder(r.Body)
-		var t user
-		err := decoder.Decode(&t)
-		checkErr(err)
-		userID, isValid := isValidPassword(t.Username, t.Password)
-		if isValid {
-			sessionPassword := generateSessionPassword()
-			addCookie(w, "session", sessionPassword, true)
-			addCookie(w, "username", t.Username, false)
-			addSession(sessionPassword, userID)
-		}
-		fmt.Fprintf(w, "{\"success\":%t}", isValid)
+	  decoder := json.NewDecoder(r.Body)
+	  var t userData
+	  err := decoder.Decode(&t)
+	  checkErr(err)
+	  userID, isValid := isValidPassword(t.Username, t.Password)
+	  if isValid {
+		sessionPassword := generateSessionPassword()
+		addCookie(w, "session", sessionPassword, true)
+		addCookie(w, "username", t.Username, false)
+		addSession(sessionPassword, userID)
+	  }
+	  fmt.Fprintf(w, "{\"success\":%t}", isValid)
 	} else if path == "logout/" {
-		// Remove Session and username cookies
-		addCookie(w, "session", "", true)
-		addCookie(w, "username", "", false)
-		fmt.Fprintf(w, "{\"success\":%t}", true)
+	  // Remove Session and username cookies
+	  addCookie(w, "session", "", true)
+	  addCookie(w, "username", "", false)
+	  fmt.Fprintf(w, "{\"success\":%t}", true)
 	} else {
-		panic("Invalid RPC")
+	  // panic("Invalid RPC")
+	  fmt.Fprint(w, "{\"success\": false}")
 	}
 }
 
@@ -142,5 +184,6 @@ func main() {
 	http.HandleFunc("/", mainHandler)
 	http.HandleFunc("/rpc/", rpcHandler)
 	http.HandleFunc("/admin/", adminHandler)
+	http.HandleFunc("/admin/rpc/", adminRPCHandler)
 	log.Fatal(http.ListenAndServe(":1312", nil))
 }
