@@ -96,8 +96,9 @@ func addUser(firstName string, lastName string, email string, username string, p
 	tx.Commit()
 }
 
-func listUsers() {
+func listUsers() []user {
 	// SELECT type, name FROM sqlite_master where type="table"
+	var users = make([]user, 0)
 	rows, err := db.Query("SELECT * FROM USERS")
 	checkErr(err)
 	defer rows.Close()
@@ -108,8 +109,25 @@ func listUsers() {
 	for rows.Next() {
 		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &usertypeID)
 		checkErr(err)
-		log.Printf("%s %s, %s\n", name, lastName, email)
+		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid}
+		users = append(users, u)
+		// log.Printf("%s %s, %s\n", name, lastName, email)
 	}
+	return users
+}
+
+func deleteUser(id int) error {
+	stmt, err := db.Prepare(`DELETE FROM USERS WHERE user_id=?`)
+	checkErr(err)
+	defer stmt.Close()
+	row, err := stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	if i, err := row.RowsAffected(); err != nil || i != 1 {
+		return err
+	}
+	return nil
 }
 
 func initDatabase() {
@@ -117,6 +135,9 @@ func initDatabase() {
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
 	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", 1)
-	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", 2)
-	listUsers()
+	addUser("Antoine", "de Saint-Exupéry", "a.b@example.com", "a", "1", 2)
+	usrs := listUsers()
+	for _, u := range usrs {
+		log.Printf("%s %s, %s\n", u.Name, u.LastName, u.Email)
+	}
 }

@@ -4,6 +4,7 @@ function main() {
   const firstCookie = decodeURIComponent(document.cookie).split(';')[0];
   const name = firstCookie.split('=')[1];
   nameSpan.innerText = name;
+  // document.querySelector('a').hidden = false;
   function logout() {
     fetch('/rpc/logout/', {
       method: 'POST',
@@ -23,11 +24,22 @@ function main() {
     });
   };
 
+  fetch('/admin/rpc/', {
+  }).then((response) => {
+    response.json().then(resp => {
+      if (resp.success) {
+        document.querySelector('a').hidden = false;
+      } 
+    }, error => {
+      console.error(error);
+    });
+  });
+
   logoutButton.addEventListener('click', logout);
 
-  document.addEventListener('keydown', event => {
-    if (event.keyCode === 13) {
-      logout();
-    }
-  });
+  // document.addEventListener('keydown', event => {
+  //   if (event.keyCode === 13) {
+  //     logout();
+  //   }
+  // });
 }

@@ -10,6 +10,52 @@
     <title>Admin | SimpleApp</title>
 </head>
 <body>
-    <p>This is a basic test</p>
+    <h2>
+        SimpleApp
+    </h2>
+    <nav>
+        <button id="hint-add-user">
+                Add user
+        </button>
+        <a href="/">
+            <button id="go-home">
+                    Go home
+            </button>
+        </a>
+        <button id="logout">
+                Log out
+        </button>
+    </nav>
+    <div>
+        <div class="add-user" hidden>
+            <div class="inputs-elements">
+                <label for="add-name">Name</label>
+                <input type="text" id="add-name">
+                <label for="add-last-name">Last Name</label>
+                <input type="text" id="add-last-name">
+                <label for="add-email">Email</label>
+                <input type="text" id="add-email">
+            </div>
+            <div class="inputs-elements">
+                <label for="add-username">Username</label>
+                <input type="text" id="add-username">
+                <label for="add-password">Password</label>
+                <input type="password" id="add-password">
+                <label for="add-user-type">User type</label>
+                <!-- <input type="number" id="add-user-type" step="1" min="1" max="2" placeholder="1: normal user; 2: admin user">     -->
+                <select name="add-user-type" id="add-user-type">
+                    <option value="1">Normal</option>
+                    <option value="2">Admin</option>
+                </select>
+            </div>
+            <button id="login">
+                Submit
+            </button>
+        </div>
+    </div>
+    <div>
+        <h3>User list</h3>
+        <ul id="user-list"></ul>
+    </div>
 </body>
 </html>

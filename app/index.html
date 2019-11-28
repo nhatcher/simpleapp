@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8"/>
-  <title>Secret webpage</title>
+  <title>Secret webpage  | SimpleApp</title>
   <link rel="stylesheet" href="style.css">
   <script src="main.js"></script>
   <script>
@@ -10,8 +10,11 @@
   </script>
 </head>
 <body>
-  <div>Congrats <span id="name"></span>, you are logged in!</div>
+  <div>Congrats <strong><span id="name"></span></strong>, you are logged in!</div>
   <button id="logout">Log out</button>
   <img id="secret-image" src="secret.png" alt="Secret image">
+  <a href="/admin" hidden>
+    <button id="go-admin">To admin</button>
+  </a>
 </body>
 </html>
