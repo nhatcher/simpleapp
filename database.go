@@ -117,7 +117,7 @@ func listUsers() []user {
   }
 
   func deleteUser(id int) error {
-	stmt, err := db.Prepare(`DELETE FROM USERS, SESSIONS WHERE id=?`)
+	stmt, err := db.Prepare(`DELETE FROM USERS WHERE user_id=?`)
 	checkErr(err)
 	defer stmt.Close()
 	row, err := stmt.Exec(id)
@@ -135,7 +135,7 @@ func listUsers() []user {
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
 	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", 1)
-	addUser("Penelope", "Glamour", "penelope.glamour@example.com", "gpenelope", "123", 2)
+	addUser("Antoine", "de Saint-Exupéry", "a.b@example.com", "a", "1", 2)
 	usrs := listUsers()
 	for _, u := range usrs {
 	 log.Printf("%s %s, %s\n", u.Name, u.LastName, u.Email)

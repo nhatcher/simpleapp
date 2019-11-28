@@ -1,5 +1,63 @@
-li {
-    width: 30%;
-    /* display: inline; */
+span {
+    min-width: 15em;
+    height: 1.5em;
+    display: inline-block;
     color: olive;
+    border: black 2px solid;
+    margin: 2px;
+    padding: 5px;
+    /* text-align: right; */
+}
+
+span.button {
+    text-align: left;
+    /* min-width: 7em; */
+    border: 0;
+}
+
+li {
+   margin: 5px; 
+}
+
+label {
+    color: brown;
+    width: 6em;
+    display: inline-block;
+    /* border: solid black 1px; */
+    text-align: right;
+}
+
+input {
+    width: 15em;
+    margin-right: 4em;
+    /* border: solid black 1px; */
+}
+
+#hint-add-user {
+    margin-bottom: 1em;
+}
+
+.add-user {
+    border: maroon solid 2px;
+    padding: 0.2em;
+    max-width: max-content;
+    border-radius: 1.2em;
+}
+
+.inputs-elements{
+    /* border: maroon solid 2px; */
+    max-width: max-content;
+}
+
+#submit {
+    margin-left: 1em;
+}
+
+a {
+    text-decoration: none;
+}
+
+button.list {
+    /* height: 2em; */
+    font-size: 0.8em;
 }

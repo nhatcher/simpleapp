@@ -25,6 +25,15 @@ type user struct {
 	UserID int `json:"userID"`
 }
 
+type register struct {
+	Name string `json:"name"`
+	LastName string `json:"lastName"`
+	Email string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	UserType int `json:"userType"`
+}
+
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
@@ -110,13 +119,32 @@ func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
 			// panic("Invalid method")
 			fmt.Fprint(w, "{\"success\": false}")
 			return
-		  }
-		  decoder := json.NewDecoder(r.Body)
-		  var t user
-		  err := decoder.Decode(&t)
-		  checkErr(err)
-		  deleteUser(t.UserID)
-		  log.Printf("%v", t.UserID)
+		}
+		body, err2 := json.Marshal(r.Body)
+		checkErr(err2)
+		// log.Printf("%v", r.Body)
+		log.Printf("%v", body)
+		decoder := json.NewDecoder(r.Body)
+		var t user
+		err := decoder.Decode(&t)
+		checkErr(err)
+		log.Printf("%v", t)
+		deleteUser(t.UserID)
+		log.Printf("%v", t.UserID)
+	} else if path == "" {
+		fmt.Fprint(w, "{\"success\": true}")
+	} else if path == "add-user" {
+		if r.Method != "POST" {
+			// panic("Invalid method")
+			fmt.Fprint(w, "{\"success\": false}")
+			return
+		}
+		decoder := json.NewDecoder(r.Body)
+		var t register
+		err := decoder.Decode(&t)
+		checkErr(err)
+		addUser(t.Name, t.LastName, t.Email, t.Username, t.Password, t.UserType)
+		fmt.Fprint(w, "{\"success\": true}")
 	} else {
 		fmt.Fprint(w, "{\"success\": false}")
 		// panic("Invalid RPC")
