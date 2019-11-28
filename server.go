@@ -18,20 +18,20 @@ type userData struct {
 }
 
 type user struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
 	LastName string `json:"lastName"`
 	Username string `json:"username"`
-	Email string `json:"email"`
-	UserID int `json:"userID"`
+	Email    string `json:"email"`
+	UserID   int    `json:"userID"`
 }
 
 type register struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
 	LastName string `json:"lastName"`
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	UserType int `json:"userType"`
+	UserType int    `json:"userType"`
 }
 
 func checkErr(err error) {
@@ -154,33 +154,33 @@ func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("RPC: %s", r.URL)
 	if r.Method != "POST" {
-	  // panic("Invalid method")
-	  fmt.Fprint(w, "{\"success\": false}")
-	  return
+		// panic("Invalid method")
+		fmt.Fprint(w, "{\"success\": false}")
+		return
 	}
 	path := r.URL.Path[5:]
 	w.Header().Add("Content-Type", "application/json")
 	if path == "login/" {
-	  decoder := json.NewDecoder(r.Body)
-	  var t userData
-	  err := decoder.Decode(&t)
-	  checkErr(err)
-	  userID, isValid := isValidPassword(t.Username, t.Password)
-	  if isValid {
-		sessionPassword := generateSessionPassword()
-		addCookie(w, "session", sessionPassword, true)
-		addCookie(w, "username", t.Username, false)
-		addSession(sessionPassword, userID)
-	  }
-	  fmt.Fprintf(w, "{\"success\":%t}", isValid)
+		decoder := json.NewDecoder(r.Body)
+		var t userData
+		err := decoder.Decode(&t)
+		checkErr(err)
+		userID, isValid := isValidPassword(t.Username, t.Password)
+		if isValid {
+			sessionPassword := generateSessionPassword()
+			addCookie(w, "session", sessionPassword, true)
+			addCookie(w, "username", t.Username, false)
+			addSession(sessionPassword, userID)
+		}
+		fmt.Fprintf(w, "{\"success\":%t}", isValid)
 	} else if path == "logout/" {
-	  // Remove Session and username cookies
-	  addCookie(w, "session", "", true)
-	  addCookie(w, "username", "", false)
-	  fmt.Fprintf(w, "{\"success\":%t}", true)
+		// Remove Session and username cookies
+		addCookie(w, "session", "", true)
+		addCookie(w, "username", "", false)
+		fmt.Fprintf(w, "{\"success\":%t}", true)
 	} else {
-	  // panic("Invalid RPC")
-	  fmt.Fprint(w, "{\"success\": false}")
+		// panic("Invalid RPC")
+		fmt.Fprint(w, "{\"success\": false}")
 	}
 }
 

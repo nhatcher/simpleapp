@@ -107,30 +107,30 @@ func listUsers() []user {
 	var usertypeID int
 	var name, lastName, email, username, password string
 	for rows.Next() {
-	  err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &usertypeID)
-	  checkErr(err)
-	  u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid}
-	  users = append(users, u)
-	  // log.Printf("%s %s, %s\n", name, lastName, email)
+		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &usertypeID)
+		checkErr(err)
+		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid}
+		users = append(users, u)
+		// log.Printf("%s %s, %s\n", name, lastName, email)
 	}
 	return users
-  }
+}
 
-  func deleteUser(id int) error {
+func deleteUser(id int) error {
 	stmt, err := db.Prepare(`DELETE FROM USERS WHERE user_id=?`)
 	checkErr(err)
 	defer stmt.Close()
 	row, err := stmt.Exec(id)
-    if err != nil {
-        return err
+	if err != nil {
+		return err
 	}
 	if i, err := row.RowsAffected(); err != nil || i != 1 {
-        return err
+		return err
 	}
 	return nil
-  }
+}
 
-  func initDatabase() {
+func initDatabase() {
 	var err error
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
@@ -138,6 +138,6 @@ func listUsers() []user {
 	addUser("Antoine", "de Saint-Exupéry", "a.b@example.com", "a", "1", 2)
 	usrs := listUsers()
 	for _, u := range usrs {
-	 log.Printf("%s %s, %s\n", u.Name, u.LastName, u.Email)
+		log.Printf("%s %s, %s\n", u.Name, u.LastName, u.Email)
 	}
-  }
+}
