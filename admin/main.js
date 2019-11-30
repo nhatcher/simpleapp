@@ -1,85 +1,76 @@
 function main() {
-  const username = document.cookie.split('=')[1];
+  // see https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
+  const username = document.cookie.replace(/(?:(?:^|.*;\s*)username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
   const list = document.getElementById('user-list');
   const addButton = document.getElementById('hint-add-user');
-  // const goHomeButtom = document.getElementById('go-home');
-  addButton.addEventListener("click", () => {
-    document.querySelector('.add-user').hidden = !document.querySelector('.add-user').hidden
-  })
-  // addButton.addEventListener("click", () => {
-    
-  // })
+  let users = [];
+
+  addButton.addEventListener('click', () => {
+    const addUserWidget = document.querySelector('.add-user');
+    addUserWidget.hidden = !addUserWidget.hidden;
+  });
   const logoutButton = document.getElementById('logout')
-  const loginButton = document.getElementById('login');
+  const addUserButton = document.getElementById('add-user-button');
 
   function postData(url = '', data = {}) {
-      fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-      }).then(response => {
-        response.json()
-        if (response.ok) {
-          location.reload(true);
-        };
-        console.log(response)
-        return response
-      } )     //  return response.json();
-  }
-  fetch('/admin/rpc/list-users').then((response) => {
-    response.json().then(resp => {
-      for (const user of resp) {
-        const li = document.createElement('li');
-        const button = document.createElement('button');
-        const spanName = document.createElement('span');
-        const spanButton = document.createElement('span');
-        const strong = document.createElement('strong');
-        button.innerText ='x';
-        button.className = 'list'
-        spanButton.className = 'button'
-        spanName.innerText = user.name + ' ' + user.lastName;
-        li.appendChild(spanName);
-        if(username !== user.username) {
-          spanButton.appendChild(button);
-          li.appendChild(spanButton);
-          list.appendChild(li);
-          
-          button.addEventListener("click",  () => {
-            postData('/admin/rpc/delete-users', {
-                userID: user.userID
-            });
-          });
-        } else {
-          strong.innerText ='Admin';
-          spanButton.appendChild(strong);
-          li.appendChild(spanButton);
-          list.appendChild(li);
-          
-          button.addEventListener("click",  () => {
-            postData('/admin/rpc/delete-users', {
-                userID: user.userID
-            });
-          });
-        }
-      }
-    }, error => {
-      console.log(error);
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     });
+  }
+
+  function refresh() {
+    list.innerHTML = '';
+    for (const user of users) {
+      const li = document.createElement('li');
+      const spanName = document.createElement('span');
+      const spanButton = document.createElement('span');
+      spanButton.className = 'button';
+      spanName.innerText = user.name + ' ' + user.lastName;
+      li.appendChild(spanName);
+      if (username !== user.username) {
+        spanButton.innerHTML = `<button class="list" data-id="${user.userID}">x</button>`;
+      } else {
+        spanButton.innerText = 'Admin';
+      }
+      li.appendChild(spanButton);
+      list.appendChild(li);
+    }
+  }
+
+  list.addEventListener('click',  (event) => {
+    const target = event.target;
+    if (target.classList.contains('list')) {
+      const userID = parseFloat(target.getAttribute('data-id'));
+      postData('/admin/rpc/delete-users', {
+        userID: userID
+      }).then(() => {
+        users = users.filter(user => userID !== user.userID);
+        refresh();
+      });
+    }
   });
+  
+  function reloadUsers() {
+    fetch('/admin/rpc/list-users').then((response) => {
+      response.json().then(_users => {
+        users = _users;
+        refresh();
+      }, error => {
+        console.log(error);
+      });
+    });
+  }
+  reloadUsers();
 
   function logout() {
-    fetch('/rpc/logout/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then((response) => {
+    postData('/rpc/logout/').then((response) => {
       response.json().then(resp => {
         if (resp.success) {
-          location.href = "/"
-          // location.reload();
+          location.href = '/'
         } else {
           console.error('Could not log out');
         }
@@ -108,18 +99,13 @@ function main() {
       password: passwordInput.value,
       userType: userTypeInput
     };
-    fetch('/admin/rpc/add-user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }).then((response) => {
+    postData('/admin/rpc/add-user', data).then((response) => {
       response.json().then(resp => {
         if (resp.success) {
-          location.reload(true);
+          reloadUsers();
+          refresh();
         } else {
-          console.log('Invalid username/password');
+          alert('Invalid username/password');
         }
       }, error => {
         console.log(error);
@@ -127,7 +113,7 @@ function main() {
     });
   };
 
-  loginButton.addEventListener('click', addUser);
+  addUserButton.addEventListener('click', addUser);
 
   document.addEventListener('keydown', event => {
     if (event.keyCode === 13) {
