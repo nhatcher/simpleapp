@@ -134,8 +134,6 @@ func initDatabase() {
 	var err error
 	db, err = sql.Open("sqlite3", "./database.sqlite")
 	checkErr(err)
-	addUser("John", "Smith", "jonh.smith@example.com", "jsmith", "123", 1)
-	addUser("Antoine", "de Saint-Exupéry", "a.b@example.com", "a", "1", 2)
 	usrs := listUsers()
 	for _, u := range usrs {
 		log.Printf("%s %s, %s\n", u.Name, u.LastName, u.Email)
