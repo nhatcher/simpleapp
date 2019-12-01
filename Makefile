@@ -3,7 +3,8 @@ all: database.sqlite
 
 database.sqlite:
 	sqlite3 database.sqlite < database.sql
+	sqlite3 database.sqlite < data.sql
 
 clean:
-	rm database.sqlite
-	rm simpleapp
+	rm -rf database.sqlite
+	rm -rf simpleapp
