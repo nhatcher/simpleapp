@@ -116,13 +116,11 @@ func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(users)
 	} else if path == "delete-users" {
 		if r.Method != "POST" {
-			// panic("Invalid method")
 			fmt.Fprint(w, "{\"success\": false}")
 			return
 		}
 		body, err2 := json.Marshal(r.Body)
 		checkErr(err2)
-		// log.Printf("%v", r.Body)
 		log.Printf("%v", body)
 		decoder := json.NewDecoder(r.Body)
 		var t user
@@ -135,7 +133,6 @@ func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "{\"success\": true}")
 	} else if path == "add-user" {
 		if r.Method != "POST" {
-			// panic("Invalid method")
 			fmt.Fprint(w, "{\"success\": false}")
 			return
 		}
@@ -147,14 +144,12 @@ func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "{\"success\": true}")
 	} else {
 		fmt.Fprint(w, "{\"success\": false}")
-		// panic("Invalid RPC")
 	}
 }
 
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("RPC: %s", r.URL)
 	if r.Method != "POST" {
-		// panic("Invalid method")
 		fmt.Fprint(w, "{\"success\": false}")
 		return
 	}
@@ -179,7 +174,6 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 		addCookie(w, "username", "", false)
 		fmt.Fprintf(w, "{\"success\":%t}", true)
 	} else {
-		// panic("Invalid RPC")
 		fmt.Fprint(w, "{\"success\": false}")
 	}
 }
