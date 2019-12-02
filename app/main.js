@@ -4,7 +4,6 @@ function main() {
   const firstCookie = decodeURIComponent(document.cookie).split(';')[0];
   const name = firstCookie.split('=')[1];
   nameSpan.innerText = name;
-  // document.querySelector('a').hidden = false;
   function logout() {
     fetch('/rpc/logout/', {
       method: 'POST',
