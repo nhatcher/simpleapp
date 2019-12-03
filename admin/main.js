@@ -3,7 +3,12 @@ function main() {
   const username = document.cookie.replace(/(?:(?:^|.*;\s*)username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
   const list = document.getElementById('user-list');
   const addButton = document.getElementById('hint-add-user');
+  const goHomeButton = document.getElementById('go-home');
   let users = [];
+
+  goHomeButton.addEventListener('click', () => {
+    location.href = '/'
+  });
 
   addButton.addEventListener('click', () => {
     const addUserWidget = document.querySelector('.add-user');
