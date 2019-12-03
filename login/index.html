@@ -10,14 +10,18 @@
   </script>
 </head>
 <body>
-  <div>
-      <label for="username">Username: </label>
-      <input type="text" id="username"></div>
-  <div>
-      <label for="password">Password: </label>
-      <input type="password" id="password">
+<div id="login-window-title"><span>Log In to SimpleApp</span></div>
+<div id="login-window" class="h-centered">
+  <div class="lw-element">
+      <div><label for="username">Username or email:</label></div>
+      <div class="input-wrapper"><input type="text" id="username" placeholder="email@example.com"></div>
   </div>
-  <button id="login">Login</button>
-  <img id="login-image" src="login.png" alt="Login image">
+  <div class="lw-element">
+      <div><label for="password">Password:</label></div>
+      <div class="input-wrapper"><input type="password" id="password"></div>
+  </div>
+  <div class="lw-login"><span class="simpleapp-button" id="login">Log In</span></div>
+</div>
+<div id="create-new-account" class="h-centered"><span>Create new account</span></div>
 </body>
 </html>
