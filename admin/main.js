@@ -87,15 +87,16 @@ function main() {
 
   logoutButton.addEventListener('click', logout);
 
-  const nameInput = document.getElementById('add-name');
-  const lastNameInput = document.getElementById('add-last-name');
-  const emailInput = document.getElementById('add-email');
-  const usernameInput = document.getElementById('add-username');
-  const passwordInput = document.getElementById('add-password');
-  let userTypeInput = document.getElementById('add-user-type');
-  userTypeInput = parseInt(userTypeInput.value, 10);
+
 
   function addUser() {
+    const nameInput = document.getElementById('add-name');
+    const lastNameInput = document.getElementById('add-last-name');
+    const emailInput = document.getElementById('add-email');
+    const usernameInput = document.getElementById('add-username');
+    const passwordInput = document.getElementById('add-password');
+    let userTypeInput = document.getElementById('add-user-type');
+    userTypeInput = parseInt(userTypeInput.value, 10);
     const data = {
       name: nameInput.value,
       lastName: lastNameInput.value,
