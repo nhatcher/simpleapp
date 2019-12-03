@@ -111,7 +111,6 @@ func listUsers() []user {
 		checkErr(err)
 		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid}
 		users = append(users, u)
-		// log.Printf("%s %s, %s\n", name, lastName, email)
 	}
 	return users
 }

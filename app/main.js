@@ -36,9 +36,4 @@ function main() {
 
   logoutButton.addEventListener('click', logout);
 
-  // document.addEventListener('keydown', event => {
-  //   if (event.keyCode === 13) {
-  //     logout();
-  //   }
-  // });
 }
