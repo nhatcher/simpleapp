@@ -11,14 +11,29 @@ import (
 
 var db *sql.DB
 
+func checkErrTx(err error, tx *sql.Tx) {
+	if err != nil {
+		tx.Rollback()
+		panic(err)
+	}
+}
+
+func closeTransaction(tx *sql.Tx) {
+	if r := recover(); r != nil {
+		tx.Rollback();
+		panic(r);
+	}
+	tx.Commit();
+}
+
 func addSession(sessionHash string, userID int) {
 	tx, err := db.Begin()
-	checkErr(err)
+	checkErrTx(err, tx)
 	stmt, err := tx.Prepare("INSERT INTO SESSIONS (user_id, session_hash) VALUES (?, ?)")
-	checkErr(err)
+	checkErrTx(err, tx)
 	defer stmt.Close()
 	_, err = stmt.Exec(userID, sessionHash)
-	checkErr(err)
+	checkErrTx(err, tx)
 	tx.Commit()
 }
 
@@ -78,6 +93,7 @@ func getUserIDFromSessionHash(sessionHash string) (int, int, error) {
 
 func addUser(firstName string, lastName string, email string, username string, password string, usertypeID int) {
 	tx, err := db.Begin()
+	defer closeTransaction(tx)
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
 		first_name,
@@ -93,7 +109,6 @@ func addUser(firstName string, lastName string, email string, username string, p
 	checkErr(err)
 	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), usertypeID)
 	checkErr(err)
-	tx.Commit()
 }
 
 func listUsers() []user {
@@ -109,7 +124,7 @@ func listUsers() []user {
 	for rows.Next() {
 		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &usertypeID)
 		checkErr(err)
-		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid}
+		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid, UsertypeID: usertypeID}
 		users = append(users, u)
 	}
 	return users
