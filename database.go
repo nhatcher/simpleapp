@@ -11,15 +11,23 @@ import (
 
 var db *sql.DB
 
+func closeTransaction(tx *sql.Tx) {
+	if r := recover(); r != nil {
+		tx.Rollback();
+		panic(r);
+	}
+	tx.Commit();
+}
+
 func addSession(sessionHash string, userID int) {
 	tx, err := db.Begin()
+	defer closeTransaction(tx)
 	checkErr(err)
 	stmt, err := tx.Prepare("INSERT INTO SESSIONS (user_id, session_hash) VALUES (?, ?)")
 	checkErr(err)
 	defer stmt.Close()
 	_, err = stmt.Exec(userID, sessionHash)
 	checkErr(err)
-	tx.Commit()
 }
 
 func isValidPassword(username string, password string) (int, bool) {
@@ -78,6 +86,7 @@ func getUserIDFromSessionHash(sessionHash string) (int, int, error) {
 
 func addUser(firstName string, lastName string, email string, username string, password string, usertypeID int) {
 	tx, err := db.Begin()
+	defer closeTransaction(tx)
 	stmt, err := tx.Prepare(`
 	INSERT INTO USERS (
 		first_name,
@@ -93,7 +102,6 @@ func addUser(firstName string, lastName string, email string, username string, p
 	checkErr(err)
 	_, err = stmt.Exec(firstName, lastName, email, username, string(hash), usertypeID)
 	checkErr(err)
-	tx.Commit()
 }
 
 func listUsers() []user {
