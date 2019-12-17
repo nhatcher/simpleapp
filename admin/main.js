@@ -33,15 +33,26 @@ function main() {
       const li = document.createElement('li');
       const spanName = document.createElement('span');
       const spanButton = document.createElement('span');
+      const spanUserType = document.createElement('span');
       spanButton.className = 'button';
+      spanUserType.className = 'user-type';
       spanName.innerText = user.name + ' ' + user.lastName;
       li.appendChild(spanName);
+      if(user.usertypeID === 2) {
+        spanUserType.innerText = 'Admin';
+      } else {
+        spanUserType.innerText = 'User';
+      }
       if (username !== user.username) {
         spanButton.innerHTML = `<button class="list" data-id="${user.userID}">x</button>`;
       } else {
-        spanButton.innerText = 'Admin';
+        spanButton.innerHTML = `<button class="list" data-id="${user.userID}">x</button>`;
+        spanButton.onclick = function deleteAlert() {
+          alert("You can't remove yourself");
+        }
       }
       li.appendChild(spanButton);
+      li.appendChild(spanUserType);
       list.appendChild(li);
     }
   }
@@ -54,7 +65,7 @@ function main() {
         userID: userID
       }).then(() => {
         users = users.filter(user => userID !== user.userID);
-        refresh();
+        reloadUsers();
       });
     }
   });
