@@ -22,8 +22,8 @@ Build Instructions
 
 To build the app and run the app:
 
-$ make
-$ ./simpleapp
+    $ make
+    $ ./simpleapp
 
 Then visit http://localhost:1312/
 
