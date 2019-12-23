@@ -29,7 +29,7 @@ Then visit http://localhost:1312/
 
 To remove all artifacts (in particular the database data) run:
 
-$ make clean
+    $ make clean
 
 Dependencies
 ------------
