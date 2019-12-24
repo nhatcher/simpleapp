@@ -117,7 +117,7 @@ func listUsers() []user {
 	for rows.Next() {
 		err = rows.Scan(&uid, &name, &lastName, &email, &username, &password, &usertypeID)
 		checkErr(err)
-		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid}
+		u := user{Name: name, LastName: lastName, Email: email, Username: username, UserID: uid, UsertypeID: usertypeID}
 		users = append(users, u)
 	}
 	return users

@@ -23,6 +23,7 @@ type user struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	UserID   int    `json:"userID"`
+	UsertypeID int `json:"usertypeID"`
 }
 
 type register struct {
@@ -127,6 +128,20 @@ func adminRPCHandler(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&t)
 		checkErr(err)
 		log.Printf("%v", t)
+		sessionHash, err := getSessionHash(r)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		userID, _, err := getUserIDFromSessionHash(sessionHash)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		if userID == t.UserID {
+			log.Printf("You can't remove yourself")
+			return
+		}
 		deleteUser(t.UserID)
 		log.Printf("%v", t.UserID)
 	} else if path == "" {
